@@ -10,6 +10,7 @@ const DEFAULT_ROLE_NAMES = [
   'Montessori Guide',
   'QA / Research',
 ];
+const PROTECTED_ROLE_NAMES = new Set(['Admin', 'Mod', 'Héo 3D']);
 
 export const welcomeCommand = new SlashCommandBuilder()
   .setName('welcome')
@@ -61,6 +62,12 @@ export async function handleWelcome(interaction) {
     .filter(Boolean);
   const roleIds = chosenRoleIds.length ? chosenRoleIds : defaultRoleIds;
   if (!roleIds.length) return interaction.reply({ content: 'Không tìm thấy role nhóm đồ án. Hãy chạy `setup-server` để tạo role trước.', ephemeral: true });
+  const protectedRoles = roleIds
+    .map((id) => interaction.guild.roles.cache.get(id))
+    .filter((role) => role && PROTECTED_ROLE_NAMES.has(role.name));
+  if (protectedRoles.length) {
+    return interaction.reply({ content: `Các role ${protectedRoles.map((role) => `**${role.name}**`).join(', ')} là role được bảo vệ và không thể tự chọn.`, ephemeral: true });
+  }
   const botMember = interaction.guild.members.me;
   const unavailableRoles = roleIds
     .map((id) => interaction.guild.roles.cache.get(id))
