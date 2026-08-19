@@ -15,7 +15,12 @@ export const welcomeCommand = new SlashCommandBuilder()
   .setName('welcome')
   .setDescription('Thiết lập chào thành viên mới và tự chọn role')
   .addSubcommand((sub) => sub.setName('setup').setDescription('Gửi bảng tự chọn role')
-    .addChannelOption((option) => option.setName('channel').setDescription('Kênh chào thành viên').addChannelTypes(ChannelType.GuildText)))
+    .addChannelOption((option) => option.setName('channel').setDescription('Kênh chào thành viên').addChannelTypes(ChannelType.GuildText))
+    .addRoleOption((option) => option.setName('role_1').setDescription('Role tự chọn số 1'))
+    .addRoleOption((option) => option.setName('role_2').setDescription('Role tự chọn số 2'))
+    .addRoleOption((option) => option.setName('role_3').setDescription('Role tự chọn số 3'))
+    .addRoleOption((option) => option.setName('role_4').setDescription('Role tự chọn số 4'))
+    .addRoleOption((option) => option.setName('role_5').setDescription('Role tự chọn số 5')))
   .addSubcommand((sub) => sub.setName('status').setDescription('Xem cấu hình chào thành viên'));
 
 function makeRoleRows(guild, roleIds) {
@@ -48,10 +53,21 @@ export async function handleWelcome(interaction) {
     return interaction.reply({ content: current ? `Kênh chào: <#${current.channelId}>\nCó ${current.roleIds.length} role tự chọn.` : 'Chưa cấu hình. Dùng `/welcome setup`.', ephemeral: true });
   }
   await interaction.guild.roles.fetch();
-  const roleIds = DEFAULT_ROLE_NAMES
+  const chosenRoleIds = ['role_1', 'role_2', 'role_3', 'role_4', 'role_5']
+    .map((name) => interaction.options.getRole(name)?.id)
+    .filter(Boolean);
+  const defaultRoleIds = DEFAULT_ROLE_NAMES
     .map((name) => interaction.guild.roles.cache.find((role) => role.name === name)?.id)
     .filter(Boolean);
+  const roleIds = chosenRoleIds.length ? chosenRoleIds : defaultRoleIds;
   if (!roleIds.length) return interaction.reply({ content: 'Không tìm thấy role nhóm đồ án. Hãy chạy `setup-server` để tạo role trước.', ephemeral: true });
+  const botMember = interaction.guild.members.me;
+  const unavailableRoles = roleIds
+    .map((id) => interaction.guild.roles.cache.get(id))
+    .filter((role) => !role || role.managed || role.position >= botMember.roles.highest.position);
+  if (unavailableRoles.length) {
+    return interaction.reply({ content: 'Bot không thể gán một hoặc nhiều role đã chọn. Hãy đặt role **BOT HÉO** cao hơn các role đó trong Server Settings → Roles, và không chọn role của bot/integration.', ephemeral: true });
+  }
   const channel = interaction.options.getChannel('channel') ?? interaction.channel;
   store.meta.welcome = { channelId: channel.id, roleIds, configuredAt: new Date().toISOString() };
   await persist();

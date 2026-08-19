@@ -101,7 +101,7 @@ Các slash command hiện có:
 - `/daily`: điểm danh một lần/ngày, lưu chuỗi ngày liên tiếp theo múi giờ Việt Nam.
 - `/poll create`, `/poll results`, `/poll close`: tạo bình chọn bằng nút, cập nhật số phiếu ngay khi bấm và tự đóng khi hết giờ. Tạo/đóng poll cần quyền **Manage Server**.
 - `/translate`: dịch Việt–Anh hoặc Anh–Việt. Cần thêm `DEEPL_API_KEY` vào `.env` (DeepL có gói API miễn phí).
-- `/welcome setup`: admin thiết lập lời chào và bảng tự chọn role nhóm đồ án; `/welcome status` xem cấu hình. Trong Discord Developer Portal, bật **Server Members Intent** ở mục Bot để bot nhận được sự kiện thành viên mới vào server.
+- `/welcome setup`: admin thiết lập lời chào và bảng tự chọn role; có thể chọn tối đa 5 role trực tiếp trong các ô `role_1` đến `role_5` (nếu bỏ trống, bot dùng role nhóm đồ án mẫu). `/welcome status` xem cấu hình. Trong Discord Developer Portal, bật **Server Members Intent** ở mục Bot để bot nhận được sự kiện thành viên mới vào server.
 
 Thời gian nhập trong `/meeting schedule` và `/notify remind` theo dạng `YYYY-MM-DD HH:mm`, ví dụ `2026-08-20 14:30`. Bot cũng tự nhắc task còn mở trước hạn 24 giờ. Có thể cấu hình kênh và giờ báo cáo hằng ngày trong `.env` bằng các biến mẫu đã có trong `.env.example`.
 
