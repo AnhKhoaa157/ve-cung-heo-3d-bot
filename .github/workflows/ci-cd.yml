@@ -1,0 +1,46 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches: [main, master]
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate bot
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node --check index.js
+      - run: find src -type f -name '*.js' -exec node --check {} +
+      - run: npm run preview
+
+  deploy:
+    name: Deploy to Railway
+    needs: validate
+    if: github.event_name == 'push' && secrets.RAILWAY_TOKEN != ''
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      RAILWAY_PROJECT_ID: 4c783b9c-4ed8-45d2-89a5-22f455d42846
+      RAILWAY_ENVIRONMENT: b790e84c-d5ad-4c2b-89a7-0485b27e7afb
+      RAILWAY_SERVICE: ve-cung-heo-3d-bot
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --omit=dev
+      - name: Deploy verified commit
+        run: npx --yes @railway/cli@latest up --ci --project "$RAILWAY_PROJECT_ID" --environment "$RAILWAY_ENVIRONMENT" --service "$RAILWAY_SERVICE"
