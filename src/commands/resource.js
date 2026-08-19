@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js';
+import { EmbedBuilder, SlashCommandBuilder, escapeMarkdown } from 'discord.js';
 import { isManager } from '../formatters.js';
 import { createRecord, getStore, persist } from '../storage.js';
 
@@ -31,10 +31,25 @@ function formatResource(resource) {
   return `**#${resource.id} · ${resource.name}** [${categoryLabel[resource.category]}]\n${resource.url}${description}`;
 }
 
-function listReply(resources, emptyText) {
-  return resources.length
-    ? { content: resources.map(formatResource).join('\n\n').slice(0, 1900), ephemeral: true }
-    : { content: emptyText, ephemeral: true };
+function listReply(resources, emptyText, title) {
+  if (!resources.length) return { content: emptyText, ephemeral: true };
+  const rows = [];
+  let length = 0;
+  for (const resource of resources) {
+    const row = `\`${resource.id}\`  |  ${categoryLabel[resource.category]}  |  [${escapeMarkdown(resource.name)}](${resource.url})`;
+    if (length + row.length > 3800) break;
+    rows.push(row);
+    length += row.length + 1;
+  }
+  const footer = rows.length < resources.length ? `Hiển thị ${rows.length}/${resources.length} tài nguyên.` : `${resources.length} tài nguyên.`;
+  return {
+    embeds: [new EmbedBuilder()
+      .setColor(0x5865F2)
+      .setTitle(title)
+      .setDescription(`**ID**  |  **Loại**  |  **Tài nguyên**\n${rows.join('\n')}`)
+      .setFooter({ text: footer })],
+    ephemeral: true,
+  };
 }
 
 export async function handleResource(interaction) {
@@ -59,12 +74,12 @@ export async function handleResource(interaction) {
   }
   if (subcommand === 'list') {
     const category = interaction.options.getString('category');
-    return interaction.reply(listReply(store.resources.filter((resource) => !category || resource.category === category), 'Chưa có tài nguyên phù hợp.'));
+    return interaction.reply(listReply(store.resources.filter((resource) => !category || resource.category === category), 'Chưa có tài nguyên phù hợp.', '📚 Thư viện tài nguyên'));
   }
   if (subcommand === 'find') {
     const query = interaction.options.getString('query', true).toLocaleLowerCase();
     const matches = store.resources.filter((resource) => `${resource.name} ${resource.description ?? ''}`.toLocaleLowerCase().includes(query));
-    return interaction.reply(listReply(matches, 'Không tìm thấy tài nguyên phù hợp.'));
+    return interaction.reply(listReply(matches, 'Không tìm thấy tài nguyên phù hợp.', `🔎 Kết quả: ${interaction.options.getString('query', true)}`));
   }
   if (!isManager(interaction)) return interaction.reply({ content: 'Bạn cần quyền Manage Server để xóa tài nguyên.', ephemeral: true });
   const id = interaction.options.getInteger('id', true);
