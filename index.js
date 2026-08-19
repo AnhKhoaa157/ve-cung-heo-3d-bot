@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { Client, Events, GatewayIntentBits, REST, Routes } from 'discord.js';
-import { commandDefinitions, handleButton, handleCommand } from './src/commands/index.js';
+import { commandDefinitions, handleButton, handleCommand, handleMemberJoin } from './src/commands/index.js';
 import { startNotificationService } from './src/services/notifications.js';
 import { config } from './src/config.js';
 import { initializeStore } from './src/storage.js';
@@ -23,7 +23,7 @@ async function main() {
   validateConfig();
   await initializeStore();
 
-  const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+  const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
   client.once(Events.ClientReady, async (readyClient) => {
     console.log(`Bot đã sẵn sàng: ${readyClient.user.tag}`);
     await registerCommands(readyClient);
@@ -41,6 +41,10 @@ async function main() {
       if (interaction.replied || interaction.deferred) await interaction.followUp(payload);
       else await interaction.reply(payload);
     }
+  });
+
+  client.on(Events.GuildMemberAdd, (member) => {
+    handleMemberJoin(member).catch((error) => console.error('Lỗi chào thành viên mới:', error));
   });
 
   await client.login(config.token);

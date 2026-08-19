@@ -4,8 +4,9 @@ import { notifyCommand, handleNotify } from './notify.js';
 import { dailyCommand, handleDaily } from './daily.js';
 import { translateCommand, handleTranslate } from './translate.js';
 import { pollCommand, handlePoll, handlePollVote } from './poll.js';
+import { welcomeCommand, handleMemberJoin, handleSelfRole, handleWelcome } from './welcome.js';
 
-export const commandDefinitions = [taskCommand, meetingCommand, notifyCommand, dailyCommand, translateCommand, pollCommand].map((command) => command.toJSON());
+export const commandDefinitions = [taskCommand, meetingCommand, notifyCommand, dailyCommand, translateCommand, pollCommand, welcomeCommand].map((command) => command.toJSON());
 
 export async function handleCommand(interaction) {
   if (interaction.commandName === 'task') return handleTask(interaction);
@@ -14,8 +15,12 @@ export async function handleCommand(interaction) {
   if (interaction.commandName === 'daily') return handleDaily(interaction);
   if (interaction.commandName === 'translate') return handleTranslate(interaction);
   if (interaction.commandName === 'poll') return handlePoll(interaction);
+  if (interaction.commandName === 'welcome') return handleWelcome(interaction);
 }
 
 export async function handleButton(interaction) {
   if (interaction.customId.startsWith('poll:')) return handlePollVote(interaction);
+  if (interaction.customId.startsWith('selfrole:')) return handleSelfRole(interaction);
 }
+
+export { handleMemberJoin };

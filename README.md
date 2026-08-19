@@ -101,5 +101,16 @@ Các slash command hiện có:
 - `/daily`: điểm danh một lần/ngày, lưu chuỗi ngày liên tiếp theo múi giờ Việt Nam.
 - `/poll create`, `/poll results`, `/poll close`: tạo bình chọn bằng nút, cập nhật số phiếu ngay khi bấm và tự đóng khi hết giờ. Tạo/đóng poll cần quyền **Manage Server**.
 - `/translate`: dịch Việt–Anh hoặc Anh–Việt. Cần thêm `DEEPL_API_KEY` vào `.env` (DeepL có gói API miễn phí).
+- `/welcome setup`: admin thiết lập lời chào và bảng tự chọn role nhóm đồ án; `/welcome status` xem cấu hình. Trong Discord Developer Portal, bật **Server Members Intent** ở mục Bot để bot nhận được sự kiện thành viên mới vào server.
 
 Thời gian nhập trong `/meeting schedule` và `/notify remind` theo dạng `YYYY-MM-DD HH:mm`, ví dụ `2026-08-20 14:30`. Bot cũng tự nhắc task còn mở trước hạn 24 giờ. Có thể cấu hình kênh và giờ báo cáo hằng ngày trong `.env` bằng các biến mẫu đã có trong `.env.example`.
+
+## CI/CD GitHub → Railway
+
+Workflow `.github/workflows/ci-cd.yml` sẽ kiểm tra cú pháp và chạy dry-run cho mọi pull request. Khi push vào `main` hoặc `master`, workflow chỉ deploy sau khi kiểm tra thành công.
+
+Trong GitHub repository, vào **Settings → Secrets and variables → Actions** và thêm:
+
+- Secret `RAILWAY_TOKEN`: Railway Project Token (không dùng token Discord ở đây). Project, environment và service của Railway đã được gắn sẵn trong workflow này.
+
+Các biến bí mật của bot như `DISCORD_BOT_TOKEN`, `DISCORD_GUILD_ID` và `DEEPL_API_KEY` phải để trong Railway **Variables**, không đặt vào GitHub workflow hay commit vào `.env`.
