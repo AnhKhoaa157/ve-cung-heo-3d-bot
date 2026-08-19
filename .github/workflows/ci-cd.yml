@@ -27,7 +27,7 @@ jobs:
   deploy:
     name: Deploy to Railway
     needs: validate
-    if: github.event_name == 'push' && secrets.RAILWAY_TOKEN != ''
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     environment: production
     env:
@@ -42,5 +42,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --omit=dev
+      - name: Skip deployment when token is not configured
+        if: env.RAILWAY_TOKEN == ''
+        run: echo "RAILWAY_TOKEN is not configured; validation passed, deployment skipped."
       - name: Deploy verified commit
+        if: env.RAILWAY_TOKEN != ''
         run: npx --yes @railway/cli@latest up --ci --project "$RAILWAY_PROJECT_ID" --environment "$RAILWAY_ENVIRONMENT" --service "$RAILWAY_SERVICE"
