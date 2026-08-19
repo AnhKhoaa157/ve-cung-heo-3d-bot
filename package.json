@@ -1,0 +1,16 @@
+{
+  "name": "ve-cung-heo-3d-discord-setup",
+  "version": "1.0.0",
+  "private": true,
+  "description": "One-time Discord workspace setup for Sketch2Life",
+  "type": "module",
+  "scripts": {
+    "setup-server": "node setup-server.js",
+    "preview": "node setup-server.js --dry-run",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.25.1",
+    "dotenv": "^17.2.3"
+  }
+}
