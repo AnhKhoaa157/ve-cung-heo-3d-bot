@@ -107,6 +107,8 @@ Role `Admin`, `Mod` và `Héo 3D` được bảo vệ trong code, không thể �
 
 `/resource add` và `/resource remove` yêu cầu quyền **Manage Server**. Các thành viên khác có thể dùng `/resource list` và `/resource find` để tra cứu nhanh link tài liệu, thiết kế, source code hoặc asset 3D. Dùng `/help` để xem danh sách lệnh trong Discord.
 
+`/heo-roast` random một trong 1.000 câu cà khịa vui về Héo 3D.
+
 Thời gian nhập trong `/meeting schedule` và `/notify remind` theo dạng `YYYY-MM-DD HH:mm`, ví dụ `2026-08-20 14:30`. Bot cũng tự nhắc task còn mở trước hạn 24 giờ. Có thể cấu hình kênh và giờ báo cáo hằng ngày trong `.env` bằng các biến mẫu đã có trong `.env.example`.
 
 ## CI/CD GitHub → Railway
